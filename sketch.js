@@ -1,40 +1,105 @@
-var car;
-var wall;
-var speed;
-var weight;
+
+var monkey , monkey_running
+var banana ,bananaImage, Obstacle, ObstacleImage
+var FoodGroup, ObstacleGroup
+var score=0;
+
+function preload(){
+  
+  
+  monkey_running =            loadAnimation("sprite_0.png","sprite_1.png","sprite_2.png","sprite_3.png","sprite_4.png","sprite_5.png","sprite_6.png","sprite_7.png","sprite_8.png")
+  
+  bananaImage = loadImage("banana.png");
+  ObstacleImage = loadImage("obstacle.png");
+ 
+}
+
+
 
 function setup() {
-  createCanvas(1600,400);
+  createCanvas(600, 400);
+
+  var message = "This message is for you";
+ console.log(message)
   
-speed=random(55,90);
-weight=random(400,1500);
-
-  car=createSprite(50, 200, 20, 50);
-  car.velocityX=speed;
-  car.shapeColor=color(225);
-
-  wall=createSprite(1500, 200, 60, height/2);
-  wall.shapeColor=color(80,80,80);
-
+  monkey = createSprite(90,350,10,10);
+  monkey.addAnimation("moving", monkey_running);
+  monkey.scale = 0.1;
+  
+  ground = createSprite(950,400,900,20);
+ ground.velocityX=-4;
+ground.x = ground.width /2;
+console.log(ground.x);
+  
+FoodGroup=new Group();
+ObstacleGroup = new Group();
 }
+
 
 function draw() {
-  background(0,0,0);  
-
- if(wall.x-car.x  <  (car.width+wall.width)/2){
-   car.velocityX=0;
-   var deformation=0.5 * weight * speed * speed/22509;
-   if(deformation>180){
-     car.shapeColor=color(255,0,0);
-   }
+  background(225);
   
-   if (deformation<180 && deformation>100){
-     car.shapeColor=color(230,230,0)
-   }
-
-   if(deformation<100){
-     car.shapeColor=color(0,255,0);
-   }
- }
-  drawSprites();
+ if (ground.x >400){
+      ground.x = ground.width/2;
+    } 
+  
+  ground.velocityX = -(4 + 3* score/100)
+    //scoring
+    score = score + Math.round(getFrameRate()/60);
+  ground.velocityX = 1;
+  
+  monkey.collide(ground);
+  
+  //jump when the space key is pressed
+    if(keyDown("space")&& monkey.y >= 100) {
+        monkey.velocityY = -12;
+    }
+  if (FoodGroup.isTouching(monkey)){
+   FoodGroup.destroyEach()
+   score=score+1
+  }
+   
+  
+  //if(ObstacleGroup.isTouching(monkey)){ 
+    //ground.velocityX=0
+     // monkey.velocityY=0;
+    //ObstacleGroup.setvelocityXEach(0);
+      //FoodGroup.setvelocityXEach(0);
+      //ObstacleGroup.setLifetimeEach(-1);
+    //FoodGroup.setLifetimeEach(-1);
+    //}
+  stroke("black");
+  textSize(20);
+  fill("black");
+  survivalTime=Math.ceil(frameCount/frameRate())
+  text("survival Time"+score,100,50)
+  
+    monkey.velocityY = monkey.velocityY + 0.8
+  spawnObstacle();
+  spawnbanana();
+ drawSprites(); 
+  
 }
+function spawnbanana(){
+  if (frameCount % 80 === 0) {
+  banana= createSprite(600,120,10,10);
+    banana.addImage(bananaImage);
+   banana.y=Math.round(random(200,300))
+    banana.scale=0.1;
+   banana.velocityX = -4;
+  FoodGroup.add(banana)
+}
+}
+function spawnObstacle(){
+  if (frameCount % 300 === 0) {
+   Obstacle= createSprite(600,380,10,10);
+   Obstacle.addImage(ObstacleImage);
+    Obstacle.scale=0.1;
+    Obstacle.velocityX = -4;
+    ObstacleGroup.add(Obstacle);
+    
+    
+}
+
+}
+
